@@ -77,6 +77,12 @@ class Terminal:
             time.sleep(1)
             self.running = False
             return
+        
+        elif cmd == "1010":
+            self.oled.text("Starting", 0, 20)
+            self.oled.text("Music Player", 0, 30)
+            time.sleep(1)
+            
 
         else:
             self.oled.text("Unknown cmd", 0, 20)
