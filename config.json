@@ -1,0 +1,12 @@
+{
+  "wifi": [
+    {
+      "ssid": "Tp-Link5G",
+      "password": "09876qwerty"
+    },
+    {
+      "ssid": "Tp-Link2,4G",
+      "password": "09876qwerty"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 from os_clock import Clock
 from machine import Pin
 import time
+from music_player import MusicPlayer
+
 
 class Terminal:
     def __init__(self, oled, keypad):
@@ -23,7 +25,8 @@ class Terminal:
         cmd_list = [
         '0000 - exit',
         '1100 - info',
-        '1234 - help [0-2]'
+        '1234 - help [0-2]',
+        '1010 - music player'
         ]
         
         chel_anim_1 = ['.....~~~........','....(0.0).......','...<(   )>......','...._/.\_.......']
@@ -82,7 +85,8 @@ class Terminal:
             self.oled.text("Starting", 0, 20)
             self.oled.text("Music Player", 0, 30)
             time.sleep(1)
-            
+            mp = MusicPlayer(self.oled)
+            mp.show_mp()
 
         else:
             self.oled.text("Unknown cmd", 0, 20)

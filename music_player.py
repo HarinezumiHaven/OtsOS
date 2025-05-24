@@ -1,7 +1,7 @@
-from machine import Pin, I2C
+from machine import Pin, I2C, PWM
 import ssd1306
 import time
-from music_list import ml
+from music_list import ml, songs
 
 
 class MusicPlayer:
@@ -15,6 +15,9 @@ class MusicPlayer:
         self.btn_down = Pin(13, Pin.IN, Pin.PULL_UP)
         self.btn_select = Pin(14, Pin.IN, Pin.PULL_UP)
         self.current_index = 0
+        self.song_play = False
+        self.buzzer = PWM(Pin(26))
+        self.buzzer.duty(0)
         pass
 
 
@@ -24,21 +27,21 @@ class MusicPlayer:
         for i, option in enumerate(self.options):
             prefix = '[' if i == self.selected else ' '
             sufix = ']' if i == self.selected else ' '
-            self.oled.text(f"{prefix} {option} {sufix}", 0, 10 + i * 10)
+            self.oled.text(f"{prefix}{option}{sufix}", 0 + i * 20, 10)
         self.oled.show()
     
     def show_mp(self):
-        self.draw_menu()
+        self.draw_mp()
         
         while True:
             if not self.btn_up.value():
                 self.selected = (self.selected - 1) % len(self.options)
-                self.draw_menu()
+                self.draw_mp()
                 time.sleep(0.2)
 
             if not self.btn_down.value():
                 self.selected = (self.selected + 1) % len(self.options)
-                self.draw_menu()
+                self.draw_mp()
                 time.sleep(0.2)
 
             if not self.btn_select.value():
@@ -47,16 +50,52 @@ class MusicPlayer:
                     time.sleep(0.05)
                 time.sleep(0.1) 
                 self.execute_option(option)
-                break
 
 
     def execute_option(self, option):
         if option == "<" and self.current_index > 0:
-            music_index -= 1
-            return
+            self.current_index -= 1
+            self.draw_mp()
         elif option == ">":
-            music_index += 1
-            return
+            self.current_index += 1
+            self.draw_mp()
         elif option == "O":
-            print(ml[self.current_index]['index'])
-            return
+            if not self.song_play:
+                print(ml[self.current_index]['index'])
+                self.draw_mp()
+                self.music_player(self.current_index)
+            elif self.song_play and self.current_index < len(ml):
+                self.buzzer.duty(0)
+        self.draw_mp()
+    
+    
+    def music_player(self, song_index):
+        self.song_play = True
+        while self.song_play:
+            song_data = songs[song_index]['song']
+            song_data = song_data.replace('\n', '').replace(' ', '')
+
+            # Розбиваємо на кортежі за '),('
+            raw_items = song_data.replace('),(', ')|(').split('|')
+
+            for raw in raw_items:
+                raw = raw.strip('()')
+                note, duration = raw.split(',')
+
+                note = note.strip().replace('"', '')
+                duration = float(duration.strip())
+
+                if note == 'PAUSE':
+                    pause_duration = round(duration / 10, 1)
+                    self.buzzer.duty(0)
+                    time.sleep(pause_duration / 1000)
+                else:
+                    freq = int(note)
+                    self.buzzer.freq(freq)
+                    self.buzzer.duty(512)
+                    time.sleep_ms(int(duration))
+                    self.buzzer.duty(0)
+
+            self.buzzer.duty(0)
+            self.song_play = False
+
