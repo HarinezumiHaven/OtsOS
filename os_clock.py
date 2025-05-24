@@ -7,13 +7,19 @@ class Clock():
         self.keypad = keypad
         self.prev = (-1, -1)
 
-    def sync_time(self):
+    def sync_time(self, retries=3):
         print("Syncing time via NTP...")
-        try:
-            ntptime.settime()
-            print("Time synchronized")
-        except Exception as e:
-            print(f"NTP sync failed: {e}")
+        ntptime.host = "time.google.com"
+        for attempt in range(retries):
+            try:
+                ntptime.settime()
+                print("Time synchronized")
+                return
+            except Exception as e:
+                print(f"NTP attempt {attempt + 1} failed: {e}")
+                sleep(2)
+        print("NTP sync failed after retries.")
+
 
     def get_time(self):
         t = localtime()
