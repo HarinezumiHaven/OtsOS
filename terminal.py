@@ -86,7 +86,7 @@ class Terminal:
             self.oled.text("Music Player", 0, 30)
             time.sleep(1)
             mp = MusicPlayer(self.oled)
-            mp.show_mp()
+            mp.start()
 
         else:
             self.oled.text("Unknown cmd", 0, 20)

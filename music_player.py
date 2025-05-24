@@ -6,10 +6,9 @@ from music_list import ml, songs
 
 class MusicPlayer:
 
-
     def __init__(self, oled):
         self.oled = oled
-        self.options = ['<', 'O', '>'] 
+        self.options = ['<', 'O', '>', 'X'] 
         self.selected = 0
         self.btn_up = Pin(12, Pin.IN, Pin.PULL_UP)
         self.btn_down = Pin(13, Pin.IN, Pin.PULL_UP)
@@ -18,6 +17,7 @@ class MusicPlayer:
         self.song_play = False
         self.buzzer = PWM(Pin(26))
         self.buzzer.duty(0)
+        self.mp_running = True
         pass
 
 
@@ -31,6 +31,7 @@ class MusicPlayer:
         self.oled.show()
     
     def show_mp(self):
+        self.buzzer.duty(0)
         self.draw_mp()
         
         while True:
@@ -66,6 +67,9 @@ class MusicPlayer:
                 self.music_player(self.current_index)
             elif self.song_play and self.current_index < len(ml):
                 self.buzzer.duty(0)
+        elif option == "X":
+            self.mp_running = False
+            return
         self.draw_mp()
     
     
@@ -98,4 +102,6 @@ class MusicPlayer:
 
             self.buzzer.duty(0)
             self.song_play = False
-
+    def start(self):
+        self.buzzer.duty(0)
+        self.show_mp()

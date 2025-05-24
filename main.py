@@ -68,7 +68,6 @@ oled.text('OtsOS', 0, 20)
 oled.show()
 
 try_connect_wifi()
-slp(1.5)
 
 menu = Menu(oled)
 menu.start()
